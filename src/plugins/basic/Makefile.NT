@@ -1,0 +1,61 @@
+#+
+# $Header: /Projects/lcd/src/plugins/basic/Makefile.NT 3     6/09/99 12:14a Alpern $
+#-
+
+TOP = ..\..\..
+
+!include $(TOP)\make\winnt-vc-part-1
+
+BASIC_PLUGIN_OBJS = \
+	$(OBJDIR)\basic-plugin.obj
+
+LCD_INCLUDE = -I$(TOP)\include
+
+LOCAL_INCLUDES = $(LCD_INCLUDE)
+LOCAL_DEFINES  = -D_WINDOWS
+LOCAL_C_FLAGS = -GX
+
+# ----------------------------------------------------------------------
+# Targets
+# ----------------------------------------------------------------------
+
+all: 	 plugins
+libs: 	 
+dlls: 	  
+plugins: dirs basic-screens.lcdx
+exes:
+
+PLUGINSUFFIX 	= $(MODE_SUFFIX).lcdx
+PLUGINDIR	= $(TOP)\plugins$(MODE_SUFFIX)
+
+dirs:
+	@if not exist $(OBJDIR) mkdir $(OBJDIR)
+	@if not exist $(PLUGINDIR) mkdir $(PLUGINDIR)
+
+basic-screens.lcdx: $(OBJDIR)\basic-screens$(PLUGINSUFFIX)
+$(OBJDIR)\basic-screens$(PLUGINSUFFIX):	$(BASIC_PLUGIN_OBJS)
+	$(LINK) @<<
+	$(LINK_FLAGS) /force:multiple /dll /out:$@ /pdb:$*.pdb $** 
+	$(LIBDIR)\MtxOrb$(LIBSUFFIX)
+	kernel32.lib 
+	$(C_RUNTIME) $(CPP_RUNTIME) $(PDH_LIB)
+<<
+
+# ----------------------------------------------------------------------
+# Special Targets & Miscellany
+# ----------------------------------------------------------------------
+
+install:	all
+	copy $(OBJDIR)\basic-screens$(PLUGINSUFFIX) $(PLUGINDIR)
+!if "$(MODE)" == "debug"
+	copy $(OBJDIR)\basic-screens$(PDBSUFFIX) $(PLUGINDIR)
+!endif
+
+clean::
+	@-echo yes | del /f $(OBJDIR)\*		> nul 2>&1
+	@-echo yes | del /f vc40.pdb		> nul 2>&1
+	@-echo yes | del /f vc60.pdb		> nul 2>&1
+
+.PHONY: all libs dlls MtxOrb.lib MtxOrb.dll MtxOrbPdh.lib MtxOrbPdh.dll exes lcdmon.exe
+
+!include $(TOP)\make\winnt-vc-part-2

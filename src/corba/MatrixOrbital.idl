@@ -1,0 +1,117 @@
+//
+// $Header: $
+//
+//    File: MatrixOrbital.idl
+//
+//    Copyright (C) 1998,1999 Adam Alpern
+//    Email: alpern@brightware.com
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Library General Public License
+// as published by the Free Software Foundation; either version 2 of
+// the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Library General Public License for more details.
+//
+// You should have received a copy of the GNU Library General Public
+// License along with this library; if not, write to the Free
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+// USA
+//
+
+#ifndef MATRIX_ORBITAL_IDL
+#define MATRIX_ORBITAL_IDL 1
+
+module MatrixOrbital {
+    
+    interface Panel {
+	typedef string DeviceName;
+	typedef unsigned short PanelContrast;
+	typedef unsigned short PanelDimension;
+
+	enum PanelType {
+	    LCD, VFD
+	};
+	
+	enum PanelBrightness {
+	    br_Brightest,
+	    br_Bright,
+	    br_Dim,
+	    br_Dimmest
+	};
+	
+	exception INVALID_POSITION {};
+
+	readonly attribute PanelType      type;
+	readonly attribute DeviceName     device;
+	readonly attribute PanelDimension height;
+	readonly attribute PanelDimension width;
+
+	// Attribute-based interface to parameters
+	attribute PanelBrightness    brightness;
+	attribute PanelContrast      contrast;
+	attribute boolean            backlight;
+	attribute boolean            autoscroll;
+	attribute boolean            blink;
+	attribute boolean            cursor;
+	
+	// Struct-based interface to parameters
+	struct PanelParameters {
+	    PanelBrightness  brightness;
+	    PanelContrast    contrast;
+	    boolean          backlight;
+	    boolean          autoscroll;
+	    boolean          blink;	    
+	    boolean          cursor;
+	};
+	PanelParameters get_parameters();
+	void set_parameters(in PanelParameters params);
+
+	// Individual drawing operations
+	void top_left();
+
+	void move_to(in short x, in short y) 
+	    raises (INVALID_POSITION);
+
+	void right(in short n);
+
+	void left(in short n);
+
+	void display_string(in short x, in short y, in string str)
+	    raises (INVALID_POSITION);
+
+	void display_title_banner(in string str, in short row)
+	    raises (INVALID_POSITION);
+
+	void fill_column(in short col, in char fill)
+	    raises (INVALID_POSITION);
+
+	void fill_row(in short row, in char fill)
+	    raises (INVALID_POSITION);	
+    };
+    typedef sequence<Panel> PanelSeq;
+    
+
+    interface Screen {
+	attribute ScreenName name;
+	void draw(in Panel panel);
+    };
+    typedef sequence<Screen> ScreenSeq;
+
+    interface Controller {
+
+	struct ScreenParameters {
+	    unsigned long display_time;
+	};
+
+	attribute Panel panel;
+	void add_screen(in Screen scr);
+	void add_screen_params(in Screen scr, in ScreenParameters scr);
+    };
+    
+}; // end module MatrixOrbital
+
+#endif // MATRIX_ORBITAL_IDL

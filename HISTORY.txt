@@ -1,0 +1,14 @@
+
+Release 0.3.5
+-------------
+
+- Finally able to set COM port settings correctly inside the
+  controller class - no more need for set-mode.bat batch file 
+  to do it 
+
+- Controller disables blink() by default on open, for newer
+  Matrix Orbital modules
+
+Release 0.3.0
+-------------
+- First public release

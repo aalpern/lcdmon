@@ -1,0 +1,11 @@
+#+
+# $Header: /Projects/lcd/src/mtxorb/Makefile.files 4     6/09/99 9:37a Alpern $
+#-
+
+LCD_SRCS = \
+	screen.cxx \
+	controller.cxx \
+	c-interface.cxx
+
+LCD_PDH_SRCS = \
+	pdh-screen.cxx

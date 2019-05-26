@@ -1,0 +1,6 @@
+#+
+# $Header: /Projects/lcd/src/basic-plugin/Makefile.files 1     6/08/99 9:57a Alpern $
+#-
+
+LCD_BASIC_PLUGIN_SRCS = \
+	basic-plugin.hxx

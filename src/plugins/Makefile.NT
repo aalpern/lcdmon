@@ -1,0 +1,28 @@
+#+
+# $Header: /Projects/lcd/src/plugins/Makefile.NT 1     6/09/99 12:13a Alpern $
+#-
+
+!ifndef MODE
+MODE = debug
+!endif
+
+install:
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT SUBTARGET=libs subdirs
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT SUBTARGET=dlls subdirs
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT SUBTARGET=exes subdirs
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT SUBTARGET=install subdirs
+
+clean depend libs dlls exes:
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT SUBTARGET=$@ subdirs
+
+subdirs:
+!IF "$(MODE)" == "all"
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT MODE=debug $(SUBTARGET)
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT MODE=release $(SUBTARGET)
+!ELSE
+        cd ./basic
+        @if exist Makefile.NT $(MAKE) /$(MAKEFLAGS) -f Makefile.NT $(SUBTARGET)
+        cd ../pdh
+        @if exist Makefile.NT $(MAKE) /$(MAKEFLAGS) -f Makefile.NT $(SUBTARGET)
+        cd ..
+!ENDIF

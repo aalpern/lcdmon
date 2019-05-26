@@ -1,0 +1,28 @@
+#+
+# $Id: Makefile.NT 1.3 1998/07/05 10:08:24 alpern Exp $
+#-
+
+!ifndef MODE
+MODE = debug
+!endif
+
+install:
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT SUBTARGET=libs subdirs
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT SUBTARGET=dlls subdirs
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT SUBTARGET=exes subdirs
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT SUBTARGET=install subdirs
+
+clean depend libs dlls exes:
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT SUBTARGET=$@ subdirs
+
+subdirs:
+!IF "$(MODE)" == "all"
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT MODE=debug $(SUBTARGET)
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT MODE=release $(SUBTARGET)
+!ELSE
+        cd ./src
+        @if exist Makefile.NT $(MAKE) /$(MAKEFLAGS) -f Makefile.NT $(SUBTARGET)
+        cd ../utils
+        @if exist Makefile.NT $(MAKE) /$(MAKEFLAGS) -f Makefile.NT $(SUBTARGET)
+        cd ..
+!ENDIF

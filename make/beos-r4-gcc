@@ -1,0 +1,143 @@
+# -*- Mode:makefile -*-
+#
+# $Header: $
+#
+# File:       make/beos-r4-gcc
+# Author:     Adam Alpern <alpern@brightware.com>
+# Copyright:  (C) 1999, Adam Alpern
+#
+# Synopsis:   Makefile scaffolding for using gcc w/gmake under BeOS
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Library General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later
+# version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Library General Public License for more details.
+#
+# You should have received a copy of the GNU Library General
+# Public License along with this library; if not, write to the
+# Free Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307 USA
+
+MIMESET	= mimeset
+XRES	= xres
+
+# ----------------------------------------------------------------------
+# MODE canonicalization
+#   one of debug | release
+# ----------------------------------------------------------------------
+
+ifndef $(MODE)
+MODE 	= debug
+endif
+
+# ----------------------------------------------------------------------
+# CPU canonicalization
+#   one of x86 | ppc
+# ----------------------------------------------------------------------
+
+MACHINE	= $(shell uname -m)
+ifeq ($(MACHINE), BePC)
+CPU		= x86
+else
+CPU		= ppc
+endif
+
+# ----------------------------------------------------------------------
+# Compiler
+# ----------------------------------------------------------------------
+
+#begin x86 compiler configuration
+ifeq ($(CPU), x86)
+CC		= gcc
+C++		= gcc
+LINK		= gcc
+
+# debug flags
+ifeq ($(MODE), debug)
+C_DEBUG_FLAG 	= -g
+C_OPTIMIZE_FLAG =
+endif
+
+# optimization flags
+ifeq ($(MODE), release)
+ifeq ($(OPTIMIZE), none)
+C_OPTIMIZE_FLAG =
+else
+C_OPTIMIZE_FLAG = -03
+endif
+endif
+
+# warning flags
+ifeq ($(WARNINGS), off)
+C_WARNING_FLAGS = -w
+else
+C_WARNING_FLAGS = -Wall -Wno-multichar -Wno-ctor-dtor-privacy
+endif
+
+CFLAGS		= $(C_DEBUG_FLAG) $(C_OPTIMIZE_FLAG) $(C_WARNING_FLAGS)
+LINK_FLAGS 	= $(C_DEBUG_FLAG)
+
+LINK_APP 	= $(LINK) $(LINK_FLAGS) -Xlinker -soname=_APP_
+LINK_SHARED 	= $(LINK) $(LINK_FLAGS) -nostart -Xlinger -soname=$(NAME)
+LINK_DRIVER	= $(LINK) $(LINK_FLAGS) -nostdlib /boot/develop/lib/x86/_KERNEL_
+
+endif
+#end x86 compiler configuration
+
+#begin ppc compiler configuration
+ifeq ($(CPU), ppc)
+endif
+#end ppc compiler configuration
+
+# ----------------------------------------------------------------------
+# Flags, helpers, etc...
+# ----------------------------------------------------------------------
+
+# ----------------------------------------------------------------------
+# Special Targets & Miscellany
+# ----------------------------------------------------------------------
+
+clean::
+	rm -rf $(OBJDIR)/*
+
+$(OBJDIR)/%.o: %.c
+	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: %.cpp
+	$(C++) $(INCLUDES) $(CFLAGS) $(C++FLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: %.cxx
+	$(C++) $(INCLUDES) $(CFLAGS) $(C++FLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: %.cc
+	$(C++) $(INCLUDES) $(CFLAGS) $(C++FLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: %.cp
+	$(C++) $(INCLUDES) $(CFLAGS) $(C++FLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: %.CPP
+	$(C++) $(INCLUDES) $(CFLAGS) $(C++FLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: %.CC
+	$(C++) $(INCLUDES) $(CFLAGS) $(C++FLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: %.C
+	$(C++) $(INCLUDES) $(CFLAGS) $(C++FLAGS) -c $< -o $@
+
+
+# ----------------------------------------------------------------------
+# Includes
+# ----------------------------------------------------------------------
+
+ifeq "$(wildcard Makefile.files)" "Makefile.files"
+ include ./Makefile.files
+endif
+ifeq "$(wildcard Makefile.depend)" "Makefile.depend"
+ include ./Makefile.depend
+endif

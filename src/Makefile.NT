@@ -1,0 +1,30 @@
+#+
+# $Header: /Projects/lcd/src/Makefile.NT 3     6/09/99 12:13a Alpern $
+#-
+
+!ifndef MODE
+MODE = debug
+!endif
+
+install:
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT SUBTARGET=libs subdirs
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT SUBTARGET=dlls subdirs
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT SUBTARGET=exes subdirs
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT SUBTARGET=install subdirs
+
+clean depend libs dlls exes:
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT SUBTARGET=$@ subdirs
+
+subdirs:
+!IF "$(MODE)" == "all"
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT MODE=debug $(SUBTARGET)
+        $(MAKE) /$(MAKEFLAGS) -nologo -f Makefile.NT MODE=release $(SUBTARGET)
+!ELSE
+        cd ./mtxorb
+        @if exist Makefile.NT $(MAKE) /$(MAKEFLAGS) -f Makefile.NT $(SUBTARGET)
+        cd ../lcdmon
+        @if exist Makefile.NT $(MAKE) /$(MAKEFLAGS) -f Makefile.NT $(SUBTARGET)
+        cd ../plugins
+        @if exist Makefile.NT $(MAKE) /$(MAKEFLAGS) -f Makefile.NT $(SUBTARGET)
+        cd ..
+!ENDIF

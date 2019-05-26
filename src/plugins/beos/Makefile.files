@@ -1,0 +1,6 @@
+#+
+# $Header: /Projects/lcd/src/plugins/beos/Makefile.files 1     6/09/99 8:29p Alpern $
+#-
+
+LCD_BE_SRCS = \
+	be-screen.cxx

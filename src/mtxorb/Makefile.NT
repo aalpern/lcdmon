@@ -1,0 +1,102 @@
+#+
+# $Header: /Projects/lcd/src/mtxorb/Makefile.NT 3     6/08/99 10:06a Alpern $
+#-
+
+TOP = ..\..
+
+!include $(TOP)\make\winnt-vc-part-1
+
+PDH_LIB = $(TOP)\pdh\pdh.lib
+PDH_DLL = $(TOP)\pdh\pdh.dll
+PDH_INCLUDE = -I$(TOP)\pdh
+
+ALL_SRCS = $(LCD_SRCS) $(LCD_PDH_SRCS)
+
+LCD_OBJS = \
+	$(OBJDIR)\controller.obj \
+	$(OBJDIR)\screen.obj \
+	$(OBJDIR)\plugin.obj \
+	$(OBJDIR)\c-interface.obj
+
+LCD_PDH_OBJS = \
+	$(OBJDIR)\pdh-screen.obj 
+
+PDH_PLUGIN_OBJS = \
+	$(OBJDIR)\pdh-plugin.obj
+
+BASIC_PLUGIN_OBJS = \
+	$(OBJDIR)\basic-plugin.obj
+
+PDH_INCLUDE = -I$(TOP)\pdh
+LCD_INCLUDE = -I$(TOP)\include
+
+LOCAL_INCLUDES = -I. $(PDH_INCLUDE) $(LCD_INCLUDE)
+LOCAL_DEFINES  = -D_WINDOWS
+LOCAL_C_FLAGS = -GX
+
+# ----------------------------------------------------------------------
+# Targets
+# ----------------------------------------------------------------------
+
+all: 	libs dlls exes
+libs: 	 dirs MtxOrb.lib MtxOrbPdh.lib
+dlls: 	 dirs MtxOrb.dll MtxOrbPdh.dll
+plugins: 
+exes:
+
+PLUGINSUFFIX 	= $(MODE_SUFFIX).lcdx
+PLUGINDIR	= $(TOP)\plugins$(MODE_SUFFIX)
+
+dirs:
+	@if not exist $(OBJDIR) mkdir $(OBJDIR)
+	@if not exist $(BINDIR) mkdir $(BINDIR)
+	@if not exist $(LIBDIR) mkdir $(LIBDIR)
+	@if not exist $(PLUGINDIR) mkdir $(PLUGINDIR)
+
+MtxOrb.dll:	$(OBJDIR)\MtxOrb$(DLLSUFFIX)
+$(OBJDIR)\MtxOrb$(DLLSUFFIX):	$(LCD_OBJS)
+	$(LINK) @<<
+	$(LINK_FLAGS) /force:multiple /dll /out:$@ /pdb:$*.pdb $** 
+	kernel32.lib 
+	$(C_RUNTIME) $(CPP_RUNTIME)
+<<
+
+MtxOrbPdh.dll:	$(OBJDIR)\MtxOrbPdh$(DLLSUFFIX)
+$(OBJDIR)\MtxOrbPdh$(DLLSUFFIX):	$(LCD_PDH_OBJS)
+	$(LINK) @<<
+	$(LINK_FLAGS) /force:multiple /dll /out:$@ /pdb:$*.pdb $** 
+	$(OBJDIR)\MtxOrb$(LIBSUFFIX)
+	kernel32.lib 
+	$(C_RUNTIME) $(CPP_RUNTIME) $(PDH_LIB)
+<<
+
+MtxOrb.lib:	$(LIBDIR)\MtxOrb$(LIBSUFFIX)
+$(LIBDIR)\MtxOrb$(LIBSUFFIX): 	$(LCD_OBJS)
+	$(LIBR) /def: /out:$@ $**
+
+MtxOrbPdh.lib:	$(LIBDIR)\MtxOrbPdh$(LIBSUFFIX)
+$(LIBDIR)\MtxOrbPdh$(LIBSUFFIX): 	$(LCD_PDH_OBJS)
+	$(LIBR) /def: /out:$@ $**
+
+
+# ----------------------------------------------------------------------
+# Special Targets & Miscellany
+# ----------------------------------------------------------------------
+
+install:	all
+	copy $(OBJDIR)\MtxOrbPdh$(DLLSUFFIX) $(BINDIR)
+	copy $(OBJDIR)\MtxOrb$(DLLSUFFIX) $(BINDIR)
+	copy $(PDH_DLL) $(BINDIR)
+!if "$(MODE)" == "debug"
+	copy $(OBJDIR)\MtxOrbPdh$(PDBSUFFIX) $(BINDIR)
+	copy $(OBJDIR)\MtxOrb$(PDBSUFFIX) $(BINDIR)
+!endif
+
+clean::
+	@-echo yes | del /f $(OBJDIR)\*		> nul 2>&1
+	@-echo yes | del /f vc40.pdb		> nul 2>&1
+	@-echo yes | del /f vc60.pdb		> nul 2>&1
+
+.PHONY: all libs dlls MtxOrb.lib MtxOrb.dll MtxOrbPdh.lib MtxOrbPdh.dll exes lcdmon.exe
+
+!include $(TOP)\make\winnt-vc-part-2

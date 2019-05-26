@@ -1,0 +1,6 @@
+#+
+# $Header: /Projects/lcd/src/pdh-plugin/Makefile.files 1     6/08/99 10:04a Alpern $
+#-
+
+PLUGIN_SRCS = \
+	pdh-plugin.hxx

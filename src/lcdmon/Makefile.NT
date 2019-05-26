@@ -1,0 +1,105 @@
+#+
+# $Header: /Projects/lcd/src/lcdmon/Makefile.NT 5     6/21/99 9:59a Alpern $
+#-
+
+TOP = ..\..
+
+!include $(TOP)\make\winnt-vc-part-1
+
+ALL_SRCS = $(LCD_SRCS) $(NT_SERVICE_SRCS)
+
+LCD_OBJS = \
+	$(OBJDIR)\main.obj
+
+C_TEST_OBJS = \
+	$(OBJDIR)\c-test.obj 
+
+NT_SERVICE_OBJS = \
+	$(OBJDIR)\service.obj 
+
+DEMO_OBJS = \
+	$(OBJDIR)\demo.obj 
+
+PDH_INCLUDE = -I$(TOP)\pdh
+LCD_INCLUDE = -I$(TOP)\include
+
+LOCAL_INCLUDES = -I. $(PDH_INCLUDE) $(LCD_INCLUDE)
+LOCAL_DEFINES  = -D_WINDOWS
+LOCAL_C_FLAGS = -GX
+
+# ----------------------------------------------------------------------
+# Targets
+# ----------------------------------------------------------------------
+
+all: 	exes
+libs: 	
+dlls: 	
+exes:	dirs lcdmon.exe lcdmon-service.exe lcd-demo.exe c-example.exe
+
+dirs:
+	@if not exist $(OBJDIR) mkdir $(OBJDIR)
+	@if not exist $(BINDIR) mkdir $(BINDIR)
+	@if not exist $(LIBDIR) mkdir $(LIBDIR)
+
+c-example.exe:		$(OBJDIR)\c-example$(EXESUFFIX)
+$(OBJDIR)\c-example$(EXESUFFIX):		$(C_TEST_OBJS)
+	$(LINK) @<<
+	$(LINK_FLAGS) /force:multiple /out:$@ /pdb:$*.pdb $** 
+	$(TOP)\src\mtxorb\$(MODE)\MtxOrb$(LIBSUFFIX) 
+	kernel32.lib advapi32.lib $(PDH_LIB)
+	$(C_RUNTIME) $(CPP_RUNTIME)
+<<
+
+lcd-demo.exe:		$(OBJDIR)\lcd-demo$(EXESUFFIX)
+$(OBJDIR)\lcd-demo$(EXESUFFIX):		$(DEMO_OBJS)
+	$(LINK) @<<
+	$(LINK_FLAGS) /force:multiple /out:$@ /pdb:$*.pdb $** 
+	$(TOP)\src\mtxorb\$(MODE)\MtxOrb$(LIBSUFFIX) 
+	kernel32.lib advapi32.lib $(PDH_LIB)
+	$(C_RUNTIME) $(CPP_RUNTIME)
+<<
+
+lcdmon.exe:		$(OBJDIR)\lcdmon$(EXESUFFIX)
+$(OBJDIR)\lcdmon$(EXESUFFIX):		$(LCD_OBJS)
+	$(LINK) @<<
+	$(LINK_FLAGS) /force:multiple /out:$@ /pdb:$*.pdb $** 
+	$(TOP)\src\mtxorb\$(MODE)\MtxOrb$(LIBSUFFIX) 
+	$(TOP)\src\mtxorb\$(MODE)\MtxOrbPdh$(LIBSUFFIX) 
+	kernel32.lib advapi32.lib $(PDH_LIB)
+	$(C_RUNTIME) $(CPP_RUNTIME)
+<<
+
+lcdmon-service.exe:		$(OBJDIR)\lcdmon-service$(EXESUFFIX)
+$(OBJDIR)\lcdmon-service$(EXESUFFIX):		$(NT_SERVICE_OBJS)
+	$(LINK) @<<
+	$(LINK_FLAGS) /force:multiple /out:$@ /pdb:$*.pdb $** 
+	$(TOP)\src\mtxorb\$(MODE)\MtxOrb$(LIBSUFFIX) 
+	$(TOP)\src\mtxorb\$(MODE)\MtxOrbPdh$(LIBSUFFIX) 
+	kernel32.lib advapi32.lib $(PDH_LIB)
+	$(C_RUNTIME) $(CPP_RUNTIME)
+<<
+
+# ----------------------------------------------------------------------
+# Special Targets & Miscellany
+# ----------------------------------------------------------------------
+
+install:	all
+	copy $(OBJDIR)\lcdmon$(EXESUFFIX) $(BINDIR)
+	copy $(OBJDIR)\lcd-demo$(EXESUFFIX) $(BINDIR)
+	copy $(OBJDIR)\lcdmon-service$(EXESUFFIX) $(BINDIR)
+	copy $(OBJDIR)\c-example$(EXESUFFIX) $(BINDIR)
+!if "$(MODE)" == "debug"
+	copy $(OBJDIR)\lcdmon$(PDBSUFFIX) $(BINDIR)
+	copy $(OBJDIR)\lcd-demo$(PDBSUFFIX) $(BINDIR)
+	copy $(OBJDIR)\lcdmon-service$(PDBSUFFIX) $(BINDIR)
+	copy $(OBJDIR)\c-example$(PDBSUFFIX) $(BINDIR)
+!endif
+
+clean::
+	@-echo yes | del /f $(OBJDIR)\*		> nul 2>&1
+	@-echo yes | del /f vc40.pdb		> nul 2>&1
+	@-echo yes | del /f vc60.pdb		> nul 2>&1
+
+.PHONY: all libs dlls exes lcdmon.exe lcdmon-service.exe
+
+!include $(TOP)\make\winnt-vc-part-2

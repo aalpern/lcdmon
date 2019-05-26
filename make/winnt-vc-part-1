@@ -1,0 +1,80 @@
+# -*- Mode:makefile -*-
+#
+# $Header: $
+#
+# File:       make/winnt-vc-nmake
+# Author:     Adam Alpern <alpern@brightware.com>
+# Copyright:  (C) 1997, Adam Alpern
+#
+# Synopsis:   Makefile scaffolding for using Visual C++ with NMAKE.
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Library General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later
+# version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Library General Public License for more details.
+#
+# You should have received a copy of the GNU Library General
+# Public License along with this library; if not, write to the
+# Free Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307 USA
+
+# MODE variable, controls build process.
+# Values are [ debug | release ].
+
+!ifndef MODE
+MODE 		= debug
+!endif
+
+!if "$(MODE)" == "release"
+MODE_SUFFIX 	=
+!else
+MODE_SUFFIX 	= -$(MODE)
+!endif
+
+DLLSUFFIX 	= $(MODE_SUFFIX).dll
+LIBSUFFIX 	= $(MODE_SUFFIX).lib
+PDBSUFFIX 	= $(MODE_SUFFIX).pdb
+EXESUFFIX 	= $(MODE_SUFFIX).exe
+
+OBJDIR 		= $(MODE)
+BINDIR		= $(TOP)\bin$(MODE_SUFFIX)
+LIBDIR		= $(TOP)\lib$(MODE_SUFFIX)
+
+# Compiler
+CC 	= cl -nologo 
+CFLAGS 	= $(LOCAL_DEFINES) $(LOCAL_INCLUDES) $(LOCAL_C_FLAGS) $(CFLAGS_MODE)
+
+# Export Library linker
+LIBR 	= lib -nologo
+
+# Linker
+LINK 	= link -nologo
+LINK_FLAGS_COMMON = /incremental:no /machine:i386 /nodefaultlib
+
+!if "$(MODE)" == "debug"
+LINK_FLAGS_MODE = /debug 
+CFLAGS_MODE 	= -MDd -Od -Zi
+C_RUNTIME 	= msvcrtd.lib
+CPP_RUNTIME 	= msvcprtd.lib msvcirtd.lib
+!else
+LINK_FLAGS_MODE =
+CFLAGS_MODE 	= -MD
+C_RUNTIME 	= msvcrt.lib
+CPP_RUNTIME 	= msvcprt.lib msvcirt.lib
+!endif
+
+LINK_FLAGS 	= $(LINK_FLAGS_COMMON) $(LINK_FLAGS_MODE) $(LOCAL_LINK_FLAGS)
+
+!if exist (Makefile.files)
+! include Makefile.files
+!endif
+
+!if exist (Makefile.depend)
+! include Makefile.depend
+!endif

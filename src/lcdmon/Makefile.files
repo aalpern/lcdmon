@@ -1,0 +1,15 @@
+#+
+# $Header: /Projects/lcd/src/lcdmon/Makefile.files 3     6/21/99 9:59a Alpern $
+#-
+
+LCD_SRCS = \
+	main.cxx
+
+C_TEST_SRCS = \
+	c-test.c
+
+NT_SERVICE_SRCS = \
+	service.cxx
+
+DEMO_SRCS = \
+	demo.cxx
